@@ -174,7 +174,7 @@ jobs:
           retention-days: 7
 
   linux-rocm-rdna2:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     name: Linux ROCm RDNA2 (gfx1030) Build
     continue-on-error: true
 
@@ -207,7 +207,7 @@ jobs:
           wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | \
             gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
           sudo tee /etc/apt/sources.list.d/rocm.list <<'EOF'
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.2.1 noble main
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.2.4 noble main
           EOF
           sudo tee /etc/apt/preferences.d/rocm-pin-600 <<'EOF'
           Package: *
@@ -259,7 +259,7 @@ jobs:
           retention-days: 7
 
   linux-rocm-rdna3:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     name: Linux ROCm RDNA3 (gfx1100) Build
     continue-on-error: true
 
@@ -292,7 +292,7 @@ jobs:
           wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | \
             gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
           sudo tee /etc/apt/sources.list.d/rocm.list <<'EOF'
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.2.1 noble main
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.2.4 noble main
           EOF
           sudo tee /etc/apt/preferences.d/rocm-pin-600 <<'EOF'
           Package: *
@@ -344,7 +344,7 @@ jobs:
           retention-days: 7
 
   linux-rocm-strix:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     name: Linux ROCm Strix Halo (gfx1151) Build
     continue-on-error: true
 
@@ -377,7 +377,7 @@ jobs:
           wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | \
             gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
           sudo tee /etc/apt/sources.list.d/rocm.list <<'EOF'
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.2.1 noble main
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/7.2.4 noble main
           EOF
           sudo tee /etc/apt/preferences.d/rocm-pin-600 <<'EOF'
           Package: *
