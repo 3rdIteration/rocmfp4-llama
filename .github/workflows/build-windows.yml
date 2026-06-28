@@ -400,13 +400,15 @@ jobs:
         run: |
           choco install ninja
 
+      - name: Setup MSVC
+        id: setup_msvc
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build (MSVC CPU)
         id: cmake_build
         run: |
           cmake -B build `
             -G "Ninja Multi-Config" `
-            -DCMAKE_C_COMPILER=cl.exe `
-            -DCMAKE_CXX_COMPILER=cl.exe `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
             -DLLAMA_BUILD_WEBUI=OFF `
@@ -469,13 +471,15 @@ jobs:
         run: |
           choco install ninja
 
+      - name: Setup MSVC
+        id: setup_msvc
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build (MSVC OpenBLAS)
         id: cmake_build
         run: |
           cmake -B build `
             -G "Ninja Multi-Config" `
-            -DCMAKE_C_COMPILER=cl.exe `
-            -DCMAKE_CXX_COMPILER=cl.exe `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
             -DLLAMA_BUILD_WEBUI=OFF `
@@ -548,13 +552,15 @@ jobs:
         run: |
           choco install ninja
 
+      - name: Setup MSVC
+        id: setup_msvc
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Build (MSVC Vulkan)
         id: cmake_build
         run: |
           cmake -B build `
             -G "Ninja Multi-Config" `
-            -DCMAKE_C_COMPILER=cl.exe `
-            -DCMAKE_CXX_COMPILER=cl.exe `
             -DCMAKE_BUILD_TYPE=Release `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
