@@ -83,6 +83,21 @@ jobs:
           cd build
           ctest -L main -C Release --verbose --timeout 900
 
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          copy bin\Release\*.exe artifacts\ 2>nul || true
+          copy bin\Release\*.dll artifacts\ 2>nul || true
+          7z a llama-windows-cpu.7z artifacts\
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-windows-x64-cpu
+          path: build/llama-windows-cpu.7z
+          retention-days: 7
+
   windows-x64-openblas:
     runs-on: windows-2025
     name: Windows x64 OpenBLAS
@@ -147,6 +162,22 @@ jobs:
           cd build
           ctest -L main -C Release --verbose --timeout 900
 
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          copy bin\Release\*.exe artifacts\ 2>nul || true
+          copy bin\Release\*.dll artifacts\ 2>nul || true
+          copy "bin\Release\openblas.dll" artifacts\ 2>nul || true
+          7z a llama-windows-openblas.7z artifacts\
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-windows-x64-openblas
+          path: build/llama-windows-openblas.7z
+          retention-days: 7
+
   windows-x64-vulkan:
     runs-on: windows-2025
     name: Windows x64 Vulkan
@@ -191,6 +222,21 @@ jobs:
           cd build
           ctest -L main -C Release --verbose --timeout 900
 
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          copy bin\Release\*.exe artifacts\ 2>nul || true
+          copy bin\Release\*.dll artifacts\ 2>nul || true
+          7z a llama-windows-vulkan.7z artifacts\
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-windows-x64-vulkan
+          path: build/llama-windows-vulkan.7z
+          retention-days: 7
+
   windows-arm64:
     runs-on: windows-2025
     name: Windows ARM64
@@ -223,8 +269,20 @@ jobs:
             -DLLAMA_BUILD_SERVER=ON
           cmake --build build --config Release
 
-      # Note: ARM64 tests cannot run on x64 GitHub Actions runner
-      # Tests would need to run on ARM64 hardware
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          copy bin\Release\*.exe artifacts\ 2>nul || true
+          copy bin\Release\*.dll artifacts\ 2>nul || true
+          7z a llama-windows-arm64.7z artifacts\
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-windows-arm64
+          path: build/llama-windows-arm64.7z
+          retention-days: 7
 
   windows-latest-hip:
     runs-on: windows-2022
@@ -293,3 +351,18 @@ jobs:
             -DGGML_RPC=ON `
             -DGGML_BACKEND_DL=ON
           cmake --build build --config Release
+
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          copy bin\Release\*.exe artifacts\ 2>nul || true
+          copy bin\Release\*.dll artifacts\ 2>nul || true
+          7z a llama-windows-hip.7z artifacts\
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-windows-hip
+          path: build/llama-windows-hip.7z
+          retention-days: 7

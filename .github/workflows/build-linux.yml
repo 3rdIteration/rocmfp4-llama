@@ -1,0 +1,368 @@
+name: Linux CI (ROCmFP4)
+
+on:
+  workflow_dispatch: # allows manual triggering
+  push:
+    branches:
+      - master
+      - mtp-rocmfp4-strix
+    paths:
+      - '.github/workflows/build-linux.yml'
+      - '**/CMakeLists.txt'
+      - '**/.cmake'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.c'
+      - '**/*.cpp'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+      - mtp-rocmfp4-strix
+    paths:
+      - '.github/workflows/build-linux.yml'
+      - '**/CMakeLists.txt'
+      - '**/.cmake'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.c'
+      - '**/*.cpp'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  GGML_NLOOP: 3
+  GGML_N_THREADS: 1
+  LLAMA_LOG_COLORS: 1
+  LLAMA_LOG_PREFIX: 1
+  LLAMA_LOG_TIMESTAMPS: 1
+
+jobs:
+  linux-ubuntu-cpu:
+    runs-on: ubuntu-latest
+    name: Linux Ubuntu CPU Build
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            ninja-build \
+            libssl-dev
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.21
+        with:
+          key: linux-ubuntu-cpu
+          evict-old-files: 1d
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Build (CPU)
+        id: cmake_build
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLAMA_BUILD_SERVER=ON \
+            -DGGML_RPC=ON \
+            -DLLAMA_FATAL_WARNINGS=ON
+          cmake --build build --config Release -j $(nproc)
+
+      - name: Test
+        id: cmake_test
+        run: |
+          cd build
+          ctest -L main --verbose --timeout 900
+
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          cp bin/* artifacts/ 2>/dev/null || true
+          tar -czf llama-linux-cpu.tar.gz artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-linux-ubuntu-cpu
+          path: build/llama-linux-cpu.tar.gz
+          retention-days: 7
+
+  linux-ubuntu-vulkan:
+    runs-on: ubuntu-latest
+    name: Linux Ubuntu Vulkan Build
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            ninja-build \
+            libssl-dev \
+            vulkan-tools \
+            libvulkan-dev \
+            glslc
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.21
+        with:
+          key: linux-ubuntu-vulkan
+          evict-old-files: 1d
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Build (Vulkan)
+        id: cmake_build
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGGML_VULKAN=ON \
+            -DGGML_BACKEND_DL=ON \
+            -DGGML_CPU_ALL_VARIANTS=ON \
+            -DLLAMA_BUILD_SERVER=ON \
+            -DGGML_RPC=ON \
+            -DLLAMA_FATAL_WARNINGS=ON
+          cmake --build build --config Release -j $(nproc)
+
+      - name: Test
+        id: cmake_test
+        run: |
+          cd build
+          ctest -L main --verbose --timeout 900
+
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          cp bin/* artifacts/ 2>/dev/null || true
+          tar -czf llama-linux-vulkan.tar.gz artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-linux-ubuntu-vulkan
+          path: build/llama-linux-vulkan.tar.gz
+          retention-days: 7
+
+  linux-rocm-rdna2:
+    runs-on: ubuntu-latest
+    name: Linux ROCm RDNA2 (gfx1030) Build
+    continue-on-error: true
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            ninja-build \
+            libssl-dev \
+            wget
+
+      - name: Install ROCm
+        id: install_rocm
+        run: |
+          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y rocm-hip-sdk rocm-opencl-sdk
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.21
+        with:
+          key: linux-rocm-rdna2
+          evict-old-files: 1d
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Build (ROCm RDNA2)
+        id: cmake_build
+        run: |
+          source /opt/rocm/enable-rocm.sh || true
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGGML_HIP=ON \
+            -DAMDGPU_TARGETS=gfx1030 \
+            -DGGML_VULKAN=ON \
+            -DGGML_BACKEND_DL=ON \
+            -DGGML_CPU_ALL_VARIANTS=ON \
+            -DGGML_NATIVE=OFF \
+            -DLLAMA_BUILD_SERVER=ON \
+            -DGGML_RPC=ON \
+            -DLLAMA_FATAL_WARNINGS=ON
+          cmake --build build --config Release -j $(nproc)
+
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          cp bin/* artifacts/ 2>/dev/null || true
+          tar -czf llama-linux-rocm-rdna2.tar.gz artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-linux-rocm-rdna2
+          path: build/llama-linux-rocm-rdna2.tar.gz
+          retention-days: 7
+
+  linux-rocm-rdna3:
+    runs-on: ubuntu-latest
+    name: Linux ROCm RDNA3 (gfx1100) Build
+    continue-on-error: true
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            ninja-build \
+            libssl-dev \
+            wget
+
+      - name: Install ROCm
+        id: install_rocm
+        run: |
+          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y rocm-hip-sdk rocm-opencl-sdk
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.21
+        with:
+          key: linux-rocm-rdna3
+          evict-old-files: 1d
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Build (ROCm RDNA3)
+        id: cmake_build
+        run: |
+          source /opt/rocm/enable-rocm.sh || true
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGGML_HIP=ON \
+            -DAMDGPU_TARGETS=gfx1100 \
+            -DGGML_VULKAN=ON \
+            -DGGML_BACKEND_DL=ON \
+            -DGGML_CPU_ALL_VARIANTS=ON \
+            -DGGML_NATIVE=OFF \
+            -DLLAMA_BUILD_SERVER=ON \
+            -DGGML_RPC=ON \
+            -DLLAMA_FATAL_WARNINGS=ON
+          cmake --build build --config Release -j $(nproc)
+
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          cp bin/* artifacts/ 2>/dev/null || true
+          tar -czf llama-linux-rocm-rdna3.tar.gz artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-linux-rocm-rdna3
+          path: build/llama-linux-rocm-rdna3.tar.gz
+          retention-days: 7
+
+  linux-rocm-strix:
+    runs-on: ubuntu-latest
+    name: Linux ROCm Strix Halo (gfx1151) Build
+    continue-on-error: true
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v6
+
+      - name: Install Dependencies
+        id: dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            ninja-build \
+            libssl-dev \
+            wget
+
+      - name: Install ROCm
+        id: install_rocm
+        run: |
+          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y rocm-hip-sdk rocm-opencl-sdk
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.21
+        with:
+          key: linux-rocm-strix
+          evict-old-files: 1d
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Build (ROCm Strix Halo)
+        id: cmake_build
+        run: |
+          source /opt/rocm/enable-rocm.sh || true
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGGML_HIP=ON \
+            -DAMDGPU_TARGETS=gfx1151 \
+            -DGGML_VULKAN=ON \
+            -DGGML_BACKEND_DL=ON \
+            -DGGML_CPU_ALL_VARIANTS=ON \
+            -DGGML_NATIVE=OFF \
+            -DLLAMA_BUILD_SERVER=ON \
+            -DGGML_RPC=ON \
+            -DLLAMA_FATAL_WARNINGS=ON
+          cmake --build build --config Release -j $(nproc)
+
+      - name: Create artifact archive
+        run: |
+          cd build
+          mkdir -p artifacts
+          cp bin/* artifacts/ 2>/dev/null || true
+          tar -czf llama-linux-rocm-strix.tar.gz artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-linux-rocm-strix
+          path: build/llama-linux-rocm-strix.tar.gz
+          retention-days: 7
