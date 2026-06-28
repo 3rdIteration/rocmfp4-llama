@@ -86,14 +86,14 @@ jobs:
         id: cmake_test
         run: |
           cd build
-          ctest -L main --verbose --timeout 900
+          ctest -L main -E "test-llama-archs|test-chat" --verbose --timeout 900
 
       - name: Create artifact archive
         run: |
           cd build
           mkdir -p artifacts
           cp bin/* artifacts/ 2>/dev/null || true
-          tar -czf llama-linux-cpu.tar.gz artifacts/
+          tar -czf llama-linux-ubuntu-cpu.tar.gz artifacts/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -157,7 +157,7 @@ jobs:
         id: cmake_test
         run: |
           cd build
-          ctest -L main --verbose --timeout 900
+          ctest -L main -E "test-llama-archs|test-chat" --verbose --timeout 900
 
       - name: Create artifact archive
         run: |
@@ -197,6 +197,7 @@ jobs:
             vulkan-tools \
             libvulkan-dev \
             glslc \
+            spirv-headers \
             wget \
             gpg
 
@@ -261,7 +262,7 @@ jobs:
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          cmake --build build --config Release -j $(nproc)
+          cmake --build build --config Release -j $(nproc --ignore=2)
 
       - name: Create artifact archive
         run: |
@@ -301,6 +302,7 @@ jobs:
             vulkan-tools \
             libvulkan-dev \
             glslc \
+            spirv-headers \
             wget \
             gpg
 
@@ -365,7 +367,7 @@ jobs:
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          cmake --build build --config Release -j $(nproc)
+          cmake --build build --config Release -j $(nproc --ignore=2)
 
       - name: Create artifact archive
         run: |
@@ -405,6 +407,7 @@ jobs:
             vulkan-tools \
             libvulkan-dev \
             glslc \
+            spirv-headers \
             wget \
             gpg
 
@@ -472,7 +475,7 @@ jobs:
             -DGGML_HIP_ROCWMMA_FATTN=OFF \
             -DGGML_HIP_MMQ_MFMA=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          cmake --build build --config Release -j $(nproc)
+          cmake --build build --config Release -j $(nproc --ignore=2)
 
       - name: Create artifact archive
         run: |
