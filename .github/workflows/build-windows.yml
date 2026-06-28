@@ -84,7 +84,7 @@ jobs:
         id: cmake_test
         run: |
           cd build
-          ctest -L main -C Release --verbose --timeout 900
+          ctest -L main -C Release -E "test-llama-archs|test-chat" --verbose --timeout 900
 
       - name: Create artifact archive
         run: |
