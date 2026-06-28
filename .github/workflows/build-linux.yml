@@ -262,7 +262,7 @@ jobs:
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          cmake --build build --config Release -j $(nproc --ignore=2)
+          cmake --build build --config Release -j $(($(nproc) / 4))
 
       - name: Create artifact archive
         run: |
@@ -367,7 +367,7 @@ jobs:
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          cmake --build build --config Release -j $(nproc --ignore=2)
+          cmake --build build --config Release -j $(($(nproc) / 4))
 
       - name: Create artifact archive
         run: |
@@ -475,7 +475,7 @@ jobs:
             -DGGML_HIP_ROCWMMA_FATTN=OFF \
             -DGGML_HIP_MMQ_MFMA=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          cmake --build build --config Release -j $(nproc --ignore=2)
+          cmake --build build --config Release -j $(($(nproc) / 4))
 
       - name: Create artifact archive
         run: |
