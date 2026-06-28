@@ -194,6 +194,9 @@ jobs:
             pkg-config \
             ninja-build \
             libssl-dev \
+            vulkan-tools \
+            libvulkan-dev \
+            glslc \
             wget \
             gpg
 
@@ -275,6 +278,9 @@ jobs:
             pkg-config \
             ninja-build \
             libssl-dev \
+            vulkan-tools \
+            libvulkan-dev \
+            glslc \
             wget \
             gpg
 
@@ -356,6 +362,9 @@ jobs:
             pkg-config \
             ninja-build \
             libssl-dev \
+            vulkan-tools \
+            libvulkan-dev \
+            glslc \
             wget \
             gpg
 
