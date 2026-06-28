@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - mtp-rocmfp4-strix
+      - mtp-copilot-pr1
     paths:
       - '.github/workflows/build-linux.yml'
       - '**/CMakeLists.txt'
