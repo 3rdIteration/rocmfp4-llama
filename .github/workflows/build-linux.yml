@@ -217,6 +217,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y rocm-hip-sdk rocm-opencl-sdk
 
+      - name: Fix lld libxml2/libicu for ubuntu-26.04
+        id: fix_lld
+        run: |
+          ROCM_LIB="/opt/rocm/lib"
+          cd /tmp
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/libx/libxml2/libxml2_2.9.14+dfsg-1.3ubuntu3_amd64.deb
+          dpkg-deb -x libxml2_*.deb /tmp/libxml2-extract/
+          sudo cp /tmp/libxml2-extract/usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14 "$ROCM_LIB/"
+          sudo ln -sf libxml2.so.2.9.14 "$ROCM_LIB/libxml2.so.2"
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/i/icu/libicu74_74.2-1ubuntu3_amd64.deb
+          dpkg-deb -x libicu74_*.deb /tmp/libicu74-extract/
+          sudo cp /tmp/libicu74-extract/usr/lib/x86_64-linux-gnu/libicudata.so.74.2 "$ROCM_LIB/"
+          sudo cp /tmp/libicu74-extract/usr/lib/x86_64-linux-gnu/libicuuc.so.74.2 "$ROCM_LIB/"
+          sudo cp /tmp/libicu74-extract/usr/lib/x86_64-linux-gnu/libicui18n.so.74.2 "$ROCM_LIB/"
+          cd "$ROCM_LIB"
+          sudo ln -sf libicudata.so.74.2 libicudata.so.74
+          sudo ln -sf libicuuc.so.74.2 libicuuc.so.74
+          sudo ln -sf libicui18n.so.74.2 libicui18n.so.74
+
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
         with:
@@ -301,6 +320,25 @@ jobs:
           EOF
           sudo apt-get update
           sudo apt-get install -y rocm-hip-sdk rocm-opencl-sdk
+
+      - name: Fix lld libxml2/libicu for ubuntu-26.04
+        id: fix_lld
+        run: |
+          ROCM_LIB="/opt/rocm/lib"
+          cd /tmp
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/libx/libxml2/libxml2_2.9.14+dfsg-1.3ubuntu3_amd64.deb
+          dpkg-deb -x libxml2_*.deb /tmp/libxml2-extract/
+          sudo cp /tmp/libxml2-extract/usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14 "$ROCM_LIB/"
+          sudo ln -sf libxml2.so.2.9.14 "$ROCM_LIB/libxml2.so.2"
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/i/icu/libicu74_74.2-1ubuntu3_amd64.deb
+          dpkg-deb -x libicu74_*.deb /tmp/libicu74-extract/
+          sudo cp /tmp/libicu74-extract/usr/lib/x86_64-linux-gnu/libicudata.so.74.2 "$ROCM_LIB/"
+          sudo cp /tmp/libicu74-extract/usr/lib/x86_64-linux-gnu/libicuuc.so.74.2 "$ROCM_LIB/"
+          sudo cp /tmp/libicu74-extract/usr/lib/x86_64-linux-gnu/libicui18n.so.74.2 "$ROCM_LIB/"
+          cd "$ROCM_LIB"
+          sudo ln -sf libicudata.so.74.2 libicudata.so.74
+          sudo ln -sf libicuuc.so.74.2 libicuuc.so.74
+          sudo ln -sf libicui18n.so.74.2 libicui18n.so.74
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -387,6 +425,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y rocm-hip-sdk rocm-opencl-sdk
 
+      - name: Fix lld libxml2/libicu for ubuntu-26.04
+        id: fix_lld_strix
+        run: |
+          ROCM_LIB="/opt/rocm/lib"
+          cd /tmp
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/libx/libxml2/libxml2_2.9.14+dfsg-1.3ubuntu3_amd64.deb
+          dpkg-deb -x libxml2_*.deb /tmp/libxml2-extract-strix/
+          sudo cp /tmp/libxml2-extract-strix/usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14 "$ROCM_LIB/"
+          sudo ln -sf libxml2.so.2.9.14 "$ROCM_LIB/libxml2.so.2"
+          wget -q http://archive.ubuntu.com/ubuntu/pool/main/i/icu/libicu74_74.2-1ubuntu3_amd64.deb
+          dpkg-deb -x libicu74_*.deb /tmp/libicu74-extract-strix/
+          sudo cp /tmp/libicu74-extract-strix/usr/lib/x86_64-linux-gnu/libicudata.so.74.2 "$ROCM_LIB/"
+          sudo cp /tmp/libicu74-extract-strix/usr/lib/x86_64-linux-gnu/libicuuc.so.74.2 "$ROCM_LIB/"
+          sudo cp /tmp/libicu74-extract-strix/usr/lib/x86_64-linux-gnu/libicui18n.so.74.2 "$ROCM_LIB/"
+          cd "$ROCM_LIB"
+          sudo ln -sf libicudata.so.74.2 libicudata.so.74
+          sudo ln -sf libicuuc.so.74.2 libicuuc.so.74
+          sudo ln -sf libicui18n.so.74.2 libicui18n.so.74
+
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
         with:
@@ -411,6 +468,9 @@ jobs:
             -DLLAMA_BUILD_WEBUI=OFF \
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
+            -DGGML_HIP_NO_VMM=ON \
+            -DGGML_HIP_ROCWMMA_FATTN=OFF \
+            -DGGML_HIP_MMQ_MFMA=ON \
             -DLLAMA_FATAL_WARNINGS=ON
           cmake --build build --config Release -j $(nproc)
 
