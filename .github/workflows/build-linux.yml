@@ -228,6 +228,7 @@ jobs:
         id: cmake_build
         run: |
           HIPCXX="$(hipconfig -l)/clang" HIP_PATH="$(hipconfig -R)" \
+          CXXFLAGS="-isystem /usr/include/spirv/unified1" \
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DGGML_HIP=ON \
@@ -312,6 +313,7 @@ jobs:
         id: cmake_build
         run: |
           HIPCXX="$(hipconfig -l)/clang" HIP_PATH="$(hipconfig -R)" \
+          CXXFLAGS="-isystem /usr/include/spirv/unified1" \
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DGGML_HIP=ON \
@@ -396,6 +398,7 @@ jobs:
         id: cmake_build
         run: |
           HIPCXX="$(hipconfig -l)/clang" HIP_PATH="$(hipconfig -R)" \
+          CXXFLAGS="-isystem /usr/include/spirv/unified1" \
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DGGML_HIP=ON \
