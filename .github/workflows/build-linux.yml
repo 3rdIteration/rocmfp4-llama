@@ -248,12 +248,10 @@ jobs:
         id: cmake_build
         run: |
           HIPCXX="$(hipconfig -l)/clang" HIP_PATH="$(hipconfig -R)" \
-          CXXFLAGS="-isystem /usr/include/spirv/unified1" \
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DGGML_HIP=ON \
             -DGPU_TARGETS=gfx1030 \
-            -DGGML_VULKAN=ON \
             -DGGML_BACKEND_DL=ON \
             -DGGML_CPU_ALL_VARIANTS=ON \
             -DGGML_NATIVE=OFF \
@@ -262,7 +260,7 @@ jobs:
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          ulimit -u 65536 && cmake --build build --config Release -j 8
+          cmake --build build --config Release -j $(nproc)
 
       - name: Create artifact archive
         run: |
@@ -353,12 +351,10 @@ jobs:
         id: cmake_build
         run: |
           HIPCXX="$(hipconfig -l)/clang" HIP_PATH="$(hipconfig -R)" \
-          CXXFLAGS="-isystem /usr/include/spirv/unified1" \
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DGGML_HIP=ON \
             -DGPU_TARGETS=gfx1100 \
-            -DGGML_VULKAN=ON \
             -DGGML_BACKEND_DL=ON \
             -DGGML_CPU_ALL_VARIANTS=ON \
             -DGGML_NATIVE=OFF \
@@ -367,7 +363,7 @@ jobs:
             -DLLAMA_USE_PREBUILT_WEBUI=OFF \
             -DGGML_RPC=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          ulimit -u 65536 && cmake --build build --config Release -j 8
+          cmake --build build --config Release -j $(nproc)
 
       - name: Create artifact archive
         run: |
@@ -458,12 +454,10 @@ jobs:
         id: cmake_build
         run: |
           HIPCXX="$(hipconfig -l)/clang" HIP_PATH="$(hipconfig -R)" \
-          CXXFLAGS="-isystem /usr/include/spirv/unified1" \
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DGGML_HIP=ON \
             -DGPU_TARGETS=gfx1151 \
-            -DGGML_VULKAN=ON \
             -DGGML_BACKEND_DL=ON \
             -DGGML_CPU_ALL_VARIANTS=ON \
             -DGGML_NATIVE=OFF \
@@ -475,7 +469,7 @@ jobs:
             -DGGML_HIP_ROCWMMA_FATTN=OFF \
             -DGGML_HIP_MMQ_MFMA=ON \
             -DLLAMA_FATAL_WARNINGS=ON
-          ulimit -u 65536 && cmake --build build --config Release -j 8
+          cmake --build build --config Release -j $(nproc)
 
       - name: Create artifact archive
         run: |
