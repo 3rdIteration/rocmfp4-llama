@@ -332,6 +332,85 @@ cmake -B build `
 cmake --build build --config Release
 ```
 
+#### MSVC (Visual Studio) Builds
+
+Local builds using Visual Studio's MSVC compiler — no Clang/LLVM toolchain
+needed. Open a **Developer Command Prompt for VS 2025** from the Start menu,
+then run the commands below.
+
+Prerequisites:
+- Visual Studio 2025+ with the "Desktop development with C++" workload
+- Ninja (optional, for faster builds): `choco install ninja`
+
+##### x64 CPU (MSVC)
+
+```cmd
+cmake -B build -G "Ninja Multi-Config" ^
+  -DGGML_NATIVE=OFF ^
+  -DLLAMA_BUILD_SERVER=ON ^
+  -DLLAMA_BUILD_WEBUI=OFF ^
+  -DLLAMA_USE_PREBUILT_WEBUI=OFF ^
+  -DLLAMA_OPENSSL=OFF
+cmake --build build --config Release
+```
+
+##### x64 OpenBLAS (MSVC)
+
+```cmd
+set OPENBLAS_VERSION=0.3.23
+curl.exe -o %RUNNER_TEMP%\openblas.zip -L "https://github.com/xianyi/OpenBLAS/releases/download/v%OPENBLAS_VERSION%/OpenBLAS-%OPENBLAS_VERSION%-x64.zip"
+mkdir %RUNNER_TEMP%\openblas
+tar.exe -xvf %RUNNER_TEMP%\openblas.zip -C %RUNNER_TEMP%\openblas
+
+cmake -B build -G "Ninja Multi-Config" ^
+  -DGGML_NATIVE=OFF ^
+  -DLLAMA_BUILD_SERVER=ON ^
+  -DLLAMA_BUILD_WEBUI=OFF ^
+  -DLLAMA_USE_PREBUILT_WEBUI=OFF ^
+  -DLLAMA_OPENSSL=OFF ^
+  -DGGML_RPC=ON ^
+  -DGGML_BACKEND_DL=ON ^
+  -DGGML_CPU_ALL_VARIANTS=ON ^
+  -DGGML_OPENMP=ON ^
+  -DGGML_BLAS=ON ^
+  -DGGML_BLAS_VENDOR=OpenBLAS ^
+  -DBLAS_INCLUDE_DIRS="%RUNNER_TEMP%\openblas\include" ^
+  -DBLAS_LIBRARIES="%RUNNER_TEMP%\openblas\lib\openblas.lib"
+cmake --build build --config Release
+```
+
+##### x64 Vulkan (MSVC)
+
+```cmd
+:: Install Vulkan SDK from https://vulkan.lunarg.com/ first
+cmake -B build -G "Ninja Multi-Config" ^
+  -DCMAKE_BUILD_TYPE=Release ^
+  -DGGML_NATIVE=OFF ^
+  -DGGML_VULKAN=ON ^
+  -DLLAMA_BUILD_SERVER=ON ^
+  -DLLAMA_BUILD_WEBUI=OFF ^
+  -DLLAMA_USE_PREBUILT_WEBUI=OFF ^
+  -DLLAMA_OPENSSL=OFF
+cmake --build build --config Release
+```
+
+##### OpenSSL and Portable Builds
+
+By default, `LLAMA_OPENSSL=ON` (the upstream default). Ifcmake finds OpenSSL on
+your system at build time, the resulting executables will depend on
+`libssl-3-x64.dll` and `libcrypto-3-x64.dll` at runtime. This is fine on the
+build machine but breaks on machines without OpenSSL installed.
+
+The `-DLLAMA_OPENSSL=OFF` flag shown above disables HTTPS support in the
+built-in server. The server still works (HTTP only), and no extra DLLs are
+needed. If you need HTTPS, use `-DLLAMA_BUILD_BORINGSSL=ON` instead — it
+fetches and statically links BoringSSL, giving you TLS without external
+dependencies.
+
+Run freshly built executables from **cmd.exe**, not PowerShell — PowerShell
+hides stderr output in some configurations, making errors like missing DLLs
+appear as silent exits.
+
 ### AMD GPU Scripts (Linux only)
 
 For convenience, per-architecture build scripts are provided:
