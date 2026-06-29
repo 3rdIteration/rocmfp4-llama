@@ -407,9 +407,15 @@ needed. If you need HTTPS, use `-DLLAMA_BUILD_BORINGSSL=ON` instead — it
 fetches and statically links BoringSSL, giving you TLS without external
 dependencies.
 
-Run freshly built executables from **cmd.exe**, not PowerShell — PowerShell
-hides stderr output in some configurations, making errors like missing DLLs
-appear as silent exits.
+If using PowerShell, append `2>&1` to see error messages:
+
+```powershell
+.\llama-cli.exe -m model.gguf 2>&1
+```
+
+Without it, PowerShell may render stderr in red text that can be missed or
+scroll past. Alternatively, use **cmd.exe** where all output appears by
+default.
 
 ### AMD GPU Scripts (Linux only)
 
