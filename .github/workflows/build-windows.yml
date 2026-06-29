@@ -1,4 +1,4 @@
-name: Windows CI (ROCmFP4)
+name: CI Build
 
 on:
   workflow_dispatch: # allows manual triggering
