@@ -291,6 +291,7 @@ jobs:
           7z a llama-windows-arm64.7z artifacts\
 
       - name: Upload artifacts
+        uses: actions/upload-artifact@v6
         with:
           name: llama-windows-arm64
           path: build/llama-windows-arm64.7z
