@@ -44,24 +44,14 @@ env:
   VULKAN_VERSION: 1.4.313.2
 
 jobs:
-  webui-build:
-    uses: ./.github/workflows/webui-build.yml
-
   windows-x64-cpu:
     runs-on: windows-2025
     name: Windows x64 CPU (Static)
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -84,7 +74,9 @@ jobs:
             -D CMAKE_TOOLCHAIN_FILE=cmake/x64-windows-llvm.cmake `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON `
             -DBUILD_SHARED_LIBS=OFF
           cmake --build build --config Release
@@ -113,18 +105,11 @@ jobs:
   windows-x64-openblas:
     runs-on: windows-2025
     name: Windows x64 OpenBLAS
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -159,7 +144,9 @@ jobs:
             -D CMAKE_TOOLCHAIN_FILE=cmake/x64-windows-llvm.cmake `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON `
             -DGGML_BACKEND_DL=ON `
             -DGGML_CPU_ALL_VARIANTS=ON `
@@ -201,18 +188,11 @@ jobs:
   windows-x64-vulkan:
     runs-on: windows-2025
     name: Windows x64 Vulkan
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -237,7 +217,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON `
             -DGGML_BACKEND_DL=ON `
             -DGGML_CPU_ALL_VARIANTS=ON `
@@ -268,18 +250,11 @@ jobs:
   windows-arm64:
     runs-on: windows-2025
     name: Windows ARM64
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -302,7 +277,9 @@ jobs:
             -D CMAKE_TOOLCHAIN_FILE=cmake/arm64-windows-llvm.cmake `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF
           cmake --build build --config Release
 
       - name: Create artifact archive
@@ -323,7 +300,6 @@ jobs:
   windows-latest-hip:
     runs-on: windows-2022
     name: Windows ROCm (HIP)
-    needs: webui-build
     continue-on-error: true
 
     env:
@@ -333,12 +309,6 @@ jobs:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -391,7 +361,9 @@ jobs:
             -DGPU_TARGETS="gfx906;gfx908;gfx90a;gfx1030;gfx1100;gfx1101;gfx1102;gfx1151" `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON `
             -DGGML_BACKEND_DL=ON
           cmake --build build --config Release
@@ -414,18 +386,11 @@ jobs:
   windows-x64-msvc-cpu:
     runs-on: windows-2025
     name: Windows x64 MSVC CPU
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -451,7 +416,9 @@ jobs:
             -G "Ninja Multi-Config" `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON
           cmake --build build --config Release
 
@@ -479,18 +446,11 @@ jobs:
   windows-x64-msvc-openblas:
     runs-on: windows-2025
     name: Windows x64 MSVC OpenBLAS
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -528,7 +488,9 @@ jobs:
             -G "Ninja Multi-Config" `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON `
             -DGGML_BACKEND_DL=ON `
             -DGGML_CPU_ALL_VARIANTS=ON `
@@ -570,18 +532,11 @@ jobs:
   windows-x64-msvc-vulkan:
     runs-on: windows-2025
     name: Windows x64 MSVC Vulkan
-    needs: webui-build
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
-
-      - name: Download WebUI build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: webui-build
-          path: tools/server/public/
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.21
@@ -616,7 +571,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release `
             -DGGML_NATIVE=OFF `
             -DLLAMA_BUILD_SERVER=ON `
-            -DLLAMA_BUILD_BORINGSSL=ON `
+            -DLLAMA_BUILD_WEBUI=OFF `
+            -DLLAMA_USE_PREBUILT_WEBUI=OFF `
+            -DLLAMA_OPENSSL=OFF `
             -DGGML_RPC=ON `
             -DGGML_BACKEND_DL=ON `
             -DGGML_CPU_ALL_VARIANTS=ON `
